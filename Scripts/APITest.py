@@ -12,59 +12,43 @@ import pandas as pd
 import pyodbc
 import os
 from dotenv import load_dotenv
-
-
 load_dotenv()
 
-URL = 'https://americas.api.riotgames.com'
-APIKEY = os.environ.get('API_KEY')
 
 
-Hugh = ['Hugh', 'iswhtw', 'NA1']
-Jake = ['Jake', 'DoctorBeeves', '0229']
-Adam = ['Adam', 'Heliotropite', 'NA1']
-Steven = ['Steven', 'iPhone 4', 'NA1']
-Alex = ['Alex', 'mmmmmBAAAACOOON', 'NA1']
-Noble = ['Noble', 'Noblescute', 'moc']
-Nico = ['Nico', 'ClosingThyme', 'NA1']
-Max = ['Max', '', '']
+class APICaller():
+    def __init__(self):
+        self.base_url = 'https://americas.api.riotgames.com'
+        self.headers = {'X-Riot-Token': os.environ.get('API_KEY')}
 
 
-# def callAPI():
-#     url = URL + '/lor/ranked/v1/leaderboards'
-#     headers = {'X-Riot-Token': APIKEY}
-#     status = requests.get(url, headers=headers)
-#     data = status.json()
-#     print(min(data['players'], key=lambda x: x['lp']))
-
-
-def callAccountLookup(gameName, tagLine):
-    url = URL + f'/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}'
-    headers = {'X-Riot-Token': APIKEY}
-    status = requests.get(url, headers=headers)
-    response = status.json()
-    return response['puuid']
-
-
-def callMatchList(puuid):
-    url = URL + f'/lor/match/v1/matches/by-puuid/{puuid}/ids'
-    headers = {'X-Riot-Token': APIKEY}
-    status = requests.get(url, headers=headers)
-    response = status.json()
-    return response
-
-
-def callMatchLookup(matches):
-    data = []
-    for matchId in matches:
-        url = URL + f'/lor/match/v1/matches/{matchId}'
-        headers = {'X-Riot-Token': APIKEY}
-        status = requests.get(url, headers=headers)
+    def callAccountLookup(self, gameName, tagLine):
+        url = self.base_url + f'/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}'
+        status = requests.get(url, headers=self.headers)
         response = status.json()
-        data.append(response)
-#    print(len(data))
-    return data
+        return response['puuid']
 
+
+    def callMatchList(self, puuid):
+        url = self.base_url + f'/lor/match/v1/matches/by-puuid/{puuid}/ids'
+        status = requests.get(url, headers=self.headers)
+        response = status.json()
+        return response
+
+
+    def callMatchLookup(self, matches):
+        data = []
+        for matchId in matches:
+            url = self.base_url + f'/lor/match/v1/matches/{matchId}'
+            status = requests.get(url, headers=self.headers)
+            response = status.json()
+            data.append(response)
+        return data
+
+
+    def convertJSONtoDF(self, data):
+        print(data)
+        
 
 def analyzeDataP(data):
     df = pd.DataFrame(columns = ['MatchID','GameMode', 'GameType', 'Player1', 'DeckListCode-P1', 'Factions-P1', 'Player2', 'DeckListCode-P2', 'Factions-P2', 'Winner', 'PlayedFirst','NumOfTurns'])
@@ -219,28 +203,47 @@ def dataFromCSV(data, name):
 
 
 if __name__ == '__main__':
-# if Live:
+    Hugh = ['Hugh', 'iswhtw', 'NA1']
+    Jake = ['Jake', 'DoctorBeeves', '0229']
+    Adam = ['Adam', 'Heliotropite', 'NA1']
+    Steven = ['Steven', 'iPhone 4', 'NA1']
+    Alex = ['Alex', 'mmmmmBAAAACOOON', 'NA1']
+    Noble = ['Noble', 'Noblescute', 'moc']
+    Nico = ['Nico', 'ClosingThyme', 'NA1']
+    Max = ['Max', '', '']
+
+    apicall = APICaller()
+
     for player in [Hugh, Jake, Adam, Steven, Alex, Noble, Nico]:
-        puuid = callAccountLookup(player[1], player[2])
-        print(player[0] + ' puuid - success.')
+        puuid = apicall.callAccountLookup(*player[1:])
+        matchList = apicall.callMatchList(puuid)
+        data = apicall.callMatchLookup(matchList)
+        apicall.convertJSONtoDF(data)
+
+
+
+# # if Live:
+#     for player in [Hugh, Jake, Adam, Steven, Alex, Noble, Nico]:
+#         puuid = callAccountLookup(player[1], player[2])
+#         print(player[0] + ' puuid - success.')
         
-        matches = callMatchList(puuid)
-        print(player[0] + ' matches - success.')
+#         matches = callMatchList(puuid)
+#         print(player[0] + ' matches - success.')
         
-        rawData = callMatchLookup(matches)
-        print(player[0] + ' raw data pull - success.')
+#         rawData = callMatchLookup(matches)
+#         print(player[0] + ' raw data pull - success.')
         
-        print(rawData)
+#         print(rawData)
         
-        matchData = analyzeData(rawData)
-        print(player[0] + ' analyze data - success.')
+#         matchData = analyzeData(rawData)
+#         print(player[0] + ' analyze data - success.')
         
-        updateDataWarehouse(matchData)
-        print(player[0] + ' Update SQL - success.')
+#         updateDataWarehouse(matchData)
+#         print(player[0] + ' Update SQL - success.')
         
-    #            saveCSV(matchData, player[0])
-        print(player[0] + ' - Success')
-        # except:
+#     #            saveCSV(matchData, player[0])
+#         print(player[0] + ' - Success')
+#         # except:
         #     print('Error loading ' + player[0])
 
             
