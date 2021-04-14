@@ -4,84 +4,106 @@ Date: 4/8/2021
 Desc: Creates data warehouse for LoR Match History
 ChangeLog: (Who, When, What) 
 *****************************************************************************************/
-Use Master;
-go
+USE LORTracker;
 
-If Exists (Select * From Sys.databases where Name = 'LoRMatchData')
-  Begin
-   Alter Database LoRMatchData set single_user with rollback immediate;
-   Drop Database LoRMatchData;
-  End
-go
-
-Create Database LoRMatchData;
-go
-
-Use LoRMatchData;
-go
-
-
+DROP TABLE DataStagingTable;
 Create Table DataStagingTable (
-	  GameKey int Constraint pkGameKey Primary Key Identity 
-	, MatchID nvarchar(255) null
-	, GameMode nvarchar(100) null
-	, GameType nvarchar(100) null
-	, Player1 nvarchar(255) null
-	, P1DeckCode nvarchar(255) null
-	, P1Faction1 nvarchar(100) null
-	, P1Faction2 nvarchar(100) null
-	, Player2 nvarchar(255) null
-	, P2DeckCode nvarchar(255) null
-	, P2Faction1 nvarchar(100) null
-	, P2Faction2 nvarchar(100) null
-	, Winner nvarchar(255) null
-	, PlayedFirst nvarchar(255) null
+	  GameKey int  NOT NULL AUTO_INCREMENT 
+	, MatchID char(255) null
+	, GameMode char(100) null
+	, GameType char(100) null
+	, Player1 char(255) null
+	, P1DeckCode char(255) null
+	, P1Faction1 char(100) null
+	, P1Faction2 char(100) null
+	, Player2 char(255) null
+	, P2DeckCode char(255) null
+	, P2Faction1 char(100) null
+	, P2Faction2 char(100) null
+	, Winner char(255) null
+	, PlayedFirst char(255) null
 	, NumOfTurns int
+    , PRIMARY KEY(GameKey)
 	);
 go
 
-
+Create Table DimVocab (
+	  VocabKey int NOT NULL AUTO_INCREMENT
+	, VocabDescription char(255) null
+	, VocabName char(50) Not Null
+	, VocabNameRef char(255) Not Null
+    , PRIMARY KEY(VocabKey)
+	);
+go
 
 Create Table DimKeywords (
-	  KeywordKey int Constraint pkKeywordKey Primary Key Identity 
-	, KeywordDescription nvarchar(255) null
-	, KeywordName nvarchar(50) Not Null
-	, KeywordNameRef nvarchar(50) Not Null
+	  KeywordKey int NOT NULL AUTO_INCREMENT
+	, KeywordDescription char(255) null
+	, KeywordName char(50) Not Null
+	, KeywordNameRef char(255) Not Null
+    , Primary Key(KeywordKey)
 	);
 go
-
 
 Create Table DimRegions (
-	  RegionKey int Constraint pkRegionKey Primary Key Identity 
-	, RegionName nvarchar(50) null
-	, RegionNameRef nvarchar(50) Not Null
-	, RegionAbbreviation nvarchar(5) Not Null
-	, RegionIconAbsolutePath nvarchar(255) Not Null
+	  RegionKey int NOT NULL AUTO_INCREMENT
+	, RegionName char(50) null
+	, RegionNameRef char(255) Not Null
+	, RegionAbbreviation char(5) Not Null
+	, RegionIconAbsolutePath char(255) Not Null
+    , primary key(RegionKey)
 	);
 go
-
 
 Create Table DimSets (
-	  SetKey int Constraint pkSetKey Primary Key Identity 
-	, SetName nvarchar(50) Not Null
-	, SetNameRef nvarchar(50) Not Null
-	, SetIconAbsolutePath nvarchar(255) Not Null
+	  SetKey int NOT NULL AUTO_INCREMENT
+	, SetName char(50) Not Null
+	, SetNameRef char(255) Not Null
+	, SetIconAbsolutePath char(255) Not Null
+    , Primary Key(SetKey)
 	);
 go
-
 
 Create Table DimCards (
-	  CardKey int Constraint pkCardKey Primary Key Identity 
-	, CardName nvarchar(50) Not Null
-	, CardFaction nvarchar(50) Not Null
-	);
-go
+	  CardKey int NOT NULL AUTO_INCREMENT
+	, CardName char(255) Not Null
+	, AssociatedCards char(255) null
+	, AssociatedCardRefs char(255) null
+	, GameAbsolutePath char(255) null
+	, FullAbsolutePath char(255) null
+	, Region char(255) null
+	, RegionRef char(255) null
+	, Attack char(255) null
+	, Cost char(255) null
+	, Health char(255) null
+	, `Description` char(255) null
+	, DescriptionRaw char(255) null
+	, LevelUpDescription char(255) null
+	, LevelUpDescriptionRaw char(255) null
+	, FlavorText char(255) null
+	, ArtistName char(255) null
+	, CardCode char(255) null
+	, KeywordList char(255) null
+	, KeywordRefList char(255) null
+	, SpellSpeed char(255) null
+	, SpellSpeedRef char(255) null
+	, Rarity char(255) null
+	, RarityRef char(255) null
+	, Subtype char(255) null
+	, SubtypeList char(255) null
+	, Supertype char(255) null
+	, CardType char(255) null
+	, Collectible char(255) null
+	, CardSet char(255) null
+    , Primary Key(CardKey)
+	)
 
 
 Create Table DimPlayers (
-	  PlayerKey int Constraint pkPlayerKey Primary Key Identity 
-	, PlayerName nvarchar(50) null
-	, PlayerID nvarchar(50) Not Null
+	  PlayerKey int NOT NULL AUTO_INCREMENT
+	, PlayerName char(50) null
+	, PlayerID char(50) Not Null
+    , Primary Key(PlayerKey)
 	);
 go
 
@@ -122,5 +144,19 @@ go
 
 
 
--- delete from DataStagingTable where GameKey < 0
--- select * from DataStagingTable
+CREATE or ALTER PROCEDURE pViewAll AS
+	select * from DataStagingTable
+	select * from DimVocab
+	select * from DimKeywords
+	select * from DimRegions
+	select * from DimSets
+	select * from DimPlayers
+	select * from DimCards
+go
+
+
+
+pViewAll
+go
+
+
