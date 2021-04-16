@@ -56,7 +56,10 @@ class APICaller(DBConnection):
         # Unpack/restructure object into 3 models: MatchInfo, MatchPlayer
         for match in matches:
             MatchObject = {**match['metadata'], **match['info']}
-            MatchPlayerList.extend([{'match_id': MatchObject['match_id'], **player} for player in MatchObject['players']])
+            for player in MatchObject['players']:
+                MatchPlayer = {'match_id': MatchObject['match_id'], **player}
+                MatchPlayer['factions'] = ', '.join(MatchPlayer['factions'])
+                MatchPlayerList.append(MatchPlayer)
             del MatchObject['players']
             del MatchObject['participants']
             MatchInfoList.append(MatchObject)
@@ -65,7 +68,7 @@ class APICaller(DBConnection):
         df_MatchInfo = pd.DataFrame(MatchInfoList)
         df_MatchPlayer = pd.DataFrame(MatchPlayerList)
 
-        return (df_MatchInfo, 'MatchInfo'), (df_MatchPlayer, 'MatchPlayer')
+        return (df_MatchInfo, 'matchInfo'), (df_MatchPlayer, 'matchPlayer')
 
     
     def uploadDataFrametoSQL(self, df, tableName):
