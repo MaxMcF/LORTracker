@@ -52,9 +52,8 @@ class APICaller(DBConnection):
         # Define target dataframe lists
         MatchInfoList = []
         MatchPlayerList = []
-        MatchInfoPlayerList = []
 
-        # Unpack/restructure object into 3 models: MatchInfo, MatchPlayer, and MatchInfoPlayer(Many-to-One)
+        # Unpack/restructure object into 3 models: MatchInfo, MatchPlayer
         for match in matches:
             MatchObject = {**match['metadata'], **match['info']}
             MatchPlayerList.extend([{'match_id': MatchObject['match_id'], **player} for player in MatchObject['players']])
