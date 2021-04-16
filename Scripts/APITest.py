@@ -83,7 +83,7 @@ if __name__ == '__main__':
     # Alex = ['Alex', 'mmmmmBAAAACOOON', 'NA1']
     # Noble = ['Noble', 'Noblescute', 'moc']
     # Nico = ['Nico', 'ClosingThyme', 'NA1']
-    # Max = ['Max', '', '']
+    # Max = ['Max', 'FaxMoney', '4636']
 
     apicall = APICaller()
     # players = [Hugh, Jake, Adam, Steven, Alex, Noble, Nico]
