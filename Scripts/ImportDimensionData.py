@@ -17,25 +17,22 @@ from sqlalchemy import create_engine
 
 
 load_dotenv()
-DB_HOST = os.environ.get('DB_HOST')
-DB_USER = os.environ.get('DB_USER')
-DB_PASS = os.environ.get('DB_PASS')
-DB_PORT = os.environ.get('DB_PORT')
-DB_SCHEMA = os.environ.get('DB_SCHEMA')
+
 
 
 class DBConnection():
-    def __init__(self, host, user, password, port, schema):
-        conn = pymysql.connect(host=DB_HOST,
-                             user=DB_USER,
-                             password=DB_PASS,
-                             database=None,
-                             charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
-        self.cursor = conn.cursor()
+    def __init__(self):
+        host = os.environ.get('DB_HOST')
+        user = os.environ.get('DB_USER')
+        password = os.environ.get('DB_PASS')
+        port = os.environ.get('DB_PORT')
         db_data = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/LORTracker?charset=utf8mb4'
         self.engine = create_engine(db_data)
 
+
+class StaticImporter(DBConnection):
+    def __init__():
+        super().__init__()
 
 
     def importCardData(self, setFileName):
@@ -58,7 +55,7 @@ class DBConnection():
 
 
 if __name__ == '__main__':
-
+   
     # dimData = importDimensionData()
 
     # insertVocabData(dimData[0])
@@ -74,7 +71,7 @@ if __name__ == '__main__':
     
     # insertCardData(cardDictList)
     # lstSetFileNames = ['set1', 'set2', 'set3', 'set4']
-    ConnObj = DBConnection(DB_HOST, DB_USER, DB_PASS, DB_PORT, DB_SCHEMA)
+    ConnObj = StaticImporter()
     # ConnObj.importCardData('set1')
     ConnObj.importDimensionData()
     
